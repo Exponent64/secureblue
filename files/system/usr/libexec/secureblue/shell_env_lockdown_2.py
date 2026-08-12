@@ -72,32 +72,22 @@ def target_files() -> list[Path]:
 
 
 def lockdown_status() -> None:
+
+    class Colors:
+        green = "\033[92m"
+        warning = "\033[93m"
+        fail = "\033[91m"
+        end = "\033[0m"
+
     for file in target_files():
         try:
             lockdown_check: str = command_stdout("lsattr", "-d", file)
             if "i" in lockdown_check.split(maxsplit=1)[0]:
-                print(f"{file} is immutable")
+                print(f"{Colors.green}{file} is immutable{Colors.end}")
             else:
-                print(f"{file} is not immutable")
+                print(f"{Colors.fail}{file} is not immutable{Colors.end}")
         except CalledProcessError:
-            print(f"{file} does not exist")
-
-
-# def lockdown_status() -> None:
-#     for shell, files_list in SHELL_ENV_FILES:
-#         if command_succeeds("command", "-v", shell):
-#             print(f"{shell.upper()}:")
-#             for file in files_list:
-#                 try:
-#                     lockdown_check: str = command_stdout("lsattr", "-d", file)
-#                     if "i" in lockdown_check.split(maxsplit=1)[0]:
-#                         print(f"{file} is immutable")
-#                     else:
-#                         print(f"{file} is not immutable")
-#                 except CalledProcessError:
-#                     print(f"{file} does not exist")
-#
-#             print()
+            print(f"{Colors.fail}{file} does not exist{Colors.end}")
 
 
 # def lock_files(shell: str, file: str) -> None:
