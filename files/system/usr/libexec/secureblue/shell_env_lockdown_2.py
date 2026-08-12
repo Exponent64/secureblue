@@ -62,23 +62,42 @@ SHELL_ENV_FILES: list[tuple[str, list[Path]]] = [
 ]
 
 
-def lockdown_status() -> int:
+def target_files() -> list[Path]:
+    target_files: list[Path] = []
     for shell, files_list in SHELL_ENV_FILES:
         if command_succeeds("command", "-v", shell):
-            print(f"{shell.upper()}:")
-            for file in files_list:
-                try:
-                    lockdown_check: str = command_stdout("lsattr", "-d", file)
-                    if "i" in lockdown_check.split(maxsplit=1)[0]:
-                        print(f"{file} is immutable")
-                    else:
-                        print(f"{file} is not immutable")
-                except CalledProcessError:
-                    print(f"{file} does not exist")
+            target_files += files_list
 
-            print()
+    return target_files
 
-    return 0
+
+def lockdown_status() -> None:
+    for file in target_files():
+        try:
+            lockdown_check: str = command_stdout("lsattr", "-d", file)
+            if "i" in lockdown_check.split(maxsplit=1)[0]:
+                print(f"{file} is immutable")
+            else:
+                print(f"{file} is not immutable")
+        except CalledProcessError:
+            print(f"{file} does not exist")
+
+
+# def lockdown_status() -> None:
+#     for shell, files_list in SHELL_ENV_FILES:
+#         if command_succeeds("command", "-v", shell):
+#             print(f"{shell.upper()}:")
+#             for file in files_list:
+#                 try:
+#                     lockdown_check: str = command_stdout("lsattr", "-d", file)
+#                     if "i" in lockdown_check.split(maxsplit=1)[0]:
+#                         print(f"{file} is immutable")
+#                     else:
+#                         print(f"{file} is not immutable")
+#                 except CalledProcessError:
+#                     print(f"{file} does not exist")
+#
+#             print()
 
 
 # def lock_files(shell: str, file: str) -> None:
@@ -90,6 +109,7 @@ def lockdown_status() -> int:
 
 
 def main() -> int:
+
     try:
         mode = parse_basic_toggle_args(prompt="Would you like to lockdown your shell environment?")
     except CommandUsageError as e:
