@@ -75,19 +75,18 @@ def lockdown_status() -> None:
 
     class Colors:
         green = "\033[92m"
-        warning = "\033[93m"
-        fail = "\033[91m"
+        red = "\033[91m"
         end = "\033[0m"
 
     for file in target_files():
         try:
             lockdown_check: str = command_stdout("lsattr", "-d", file)
             if "i" in lockdown_check.split(maxsplit=1)[0]:
-                print(f"{Colors.green}{file} is immutable{Colors.end}")
+                print(f"{file} {Colors.green}is immutable{Colors.end}")
             else:
-                print(f"{Colors.fail}{file} is not immutable{Colors.end}")
+                print(f"{file} {Colors.red}is not immutable{Colors.end}")
         except CalledProcessError:
-            print(f"{Colors.fail}{file} does not exist{Colors.end}")
+            print(f"{file} {Colors.red}does not exist{Colors.end}")
 
 
 # def lock_files(shell: str, file: str) -> None:
